@@ -1,0 +1,16 @@
+.login, .conta{
+    height: 90vh;
+}
+
+.btn-success{
+    background-color:#48b256;
+}
+
+a{
+    text-decoration: none;
+    font-size: 14px;
+}
+.cor{
+    background-color: #6150ff;
+}
+
