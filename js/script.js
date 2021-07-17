@@ -9,7 +9,7 @@ function newUser(){
         
         if( newPassword.length >= 6 && newPassword===repeatPassword){
         
-            axios.post("https://backrecados.herokuapp.com/user", {username: newUsername, password: repeatPassword})
+            axios.post("https://back-recado-combanco.herokuapp.com/createLogin", {email: newUsername, password: repeatPassword})
                 .then((response) => {
                     abrirModal('successModal')
                 })
@@ -42,17 +42,18 @@ function entrar(){
     let userLogin = document.getElementById("userLogin").value;
     let passwordLogin = document.getElementById("passwordLogin").value;
 
-    axios.post("https://backrecados.herokuapp.com/login", {username: userLogin, password: passwordLogin})
+    axios.post("https://back-recado-combanco.herokuapp.com/login", {email: userLogin, password: passwordLogin})
     .then((response) => {
-      console.log(response.data.msg);
-      location.href = "recados.html";
+        localStorage.setItem("user", JSON.stringify(response.data.id));
+        location.href = "recados.html";
     })
     .catch((error) => {
       alert(error.response.data.msg);
     });  
 }
 
-
+var userLocalStorage = localStorage.getItem("user");
+var user = JSON.parse(userLocalStorage);
 
 function salvar(){
 
@@ -74,15 +75,15 @@ function salvar(){
       return;
     }
 
-    axios.post("https://backrecados.herokuapp.com/recado", {title: descricao, detail: detalhamento})
+    axios.post("https://back-recado-combanco.herokuapp.com/recado", {titulo: descricao, descricao: detalhamento, id_login: user})
         .then((response) => {
-            alert(response.data.msg);
+            alert("Recado criado com sucesso");
         setTimeout(() => {
         location.reload();
         }, 2000);
         })
         .catch((error) => {
-            alert(error.response.data.msg);
+            alert(error);
         });
 
     descricao="";
@@ -91,8 +92,8 @@ function salvar(){
 }
 
 window.addEventListener("load", () => {
-    axios.get("https://backrecados.herokuapp.com/recados").then((resposta) => {
-      recados = resposta.data.Lista;
+    axios.get("https://back-recado-combanco.herokuapp.com/recado").then((resposta) => {
+      recados = resposta.data;
       tabela(recados);
     });
   });
@@ -106,8 +107,8 @@ function tabela(){
     for (const recado of recados){
         html += `<tr>`;
         html += `<td>${recado.id}</td>`;
-        html += `<td>${recado.title}</td>` ;
-        html += `<td>${recado.detail}</td>` ;
+        html += `<td>${recado.titulo}</td>` ;
+        html += `<td>${recado.descricao}</td>` ;
         html += `<td><button type="button" class='btn-danger' onclick='apagar(${recado.id})'>Apagar</button> <button class='btn-success' data-bs-toggle="modal" data-bs-target="#exampleModal" onclick='pegarEditar(${recado.id})'>Editar</button></td>` ;
         html += `</tr>`;
     }
@@ -120,9 +121,9 @@ function tabela(){
 function apagar(id){ 
     
     axios
-    .delete(`https://backrecados.herokuapp.com/recado/${id}`)
+    .delete(`https://back-recado-combanco.herokuapp.com/recado/${id}`)
     .then((response) => {
-      alert(response.data.msg);
+      alert("Recado apagado com sucesso");
       setTimeout(() => {
         location.reload();
       }, 1000);
@@ -135,20 +136,20 @@ function apagar(id){
 }
 
 async function pegarEditar(id){
-    const data = await axios.get(`https://backrecados.herokuapp.com/recado/${id}`).then((resposta) => {
-        return resposta.data.data
+    const data = await axios.get(`https://back-recado-combanco.herokuapp.com/recado/${id}`).then((resposta) => {
+        return resposta.data
     })
 
-    document.getElementById("desc").value = data.title;
-    document.getElementById("det").value = data.detail;
+    document.getElementById("desc").value = data.titulo;
+    document.getElementById("det").value = data.descricao;
 
-    localStorage.setItem('id', (data.id));
+    localStorage.setItem('id_recado', (data.id));
 
 }
 
 
 async function atualizar() {
-  const id = localStorage.getItem("id");
+  const id = localStorage.getItem("id_recado");
   const titulo = document.getElementById("desc").value;
   const detalhes = document.getElementById("det").value;
   
@@ -167,12 +168,13 @@ async function atualizar() {
       return;
     }
 
-    await axios.put(`https://backrecados.herokuapp.com/recado/${id}`, {
-      title: titulo,
-      detail: detalhes ,
+    await axios.put(`https://back-recado-combanco.herokuapp.com/recado/${id}`, {
+      titulo: titulo,
+      descricao: detalhes ,
+      id_login: user,
       
   }).then((resposta) => {
-          alert("Registro alterado");
+          alert("Recado alterado com sucesso");
           location.href = "recados.html";
       
   }).catch((erro) => {
