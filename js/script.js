@@ -9,7 +9,7 @@ function newUser(){
         
         if( newPassword.length >= 6 && newPassword===repeatPassword){
         
-            axios.post("https://back-recado-combanco.herokuapp.com/createLogin", {email: newUsername, password: repeatPassword})
+            axios.post("http://localhost:8080/createLogin", {email: newUsername, password: repeatPassword})
                 .then((response) => {
                     abrirModal('successModal')
                 })
@@ -42,7 +42,7 @@ function entrar(){
     let userLogin = document.getElementById("userLogin").value;
     let passwordLogin = document.getElementById("passwordLogin").value;
 
-    axios.post("https://back-recado-combanco.herokuapp.com/login", {email: userLogin, password: passwordLogin})
+    axios.post("http://localhost:8080/login", {email: userLogin, password: passwordLogin})
     .then((response) => {
         localStorage.setItem("user", JSON.stringify(response.data.id));
         location.href = "recados.html";
@@ -59,6 +59,7 @@ function salvar(){
 
     let descricao = document.getElementById("descricao").value;
     let detalhamento = document.getElementById("detalhamento").value;
+    let user = JSON.parse(userLocalStorage);
 
     if (!descricao) {
       alert("Titulo deve ser informado");
@@ -75,7 +76,7 @@ function salvar(){
       return;
     }
 
-    axios.post("https://back-recado-combanco.herokuapp.com/recado", {titulo: descricao, descricao: detalhamento, id_login: user})
+    axios.post("http://localhost:8080/recado", {titulo: descricao, descricao: detalhamento, loginID: user})
         .then((response) => {
             alert("Recado criado com sucesso");
         setTimeout(() => {
@@ -92,7 +93,7 @@ function salvar(){
 }
 
 window.addEventListener("load", () => {
-    axios.get("https://back-recado-combanco.herokuapp.com/recado").then((resposta) => {
+    axios.get("http://localhost:8080/recado").then((resposta) => {
       recados = resposta.data;
       tabela(recados);
     });
@@ -121,7 +122,7 @@ function tabela(){
 function apagar(id){ 
     
     axios
-    .delete(`https://back-recado-combanco.herokuapp.com/recado/${id}`)
+    .delete(`http://localhost:8080/recado/${id}`)
     .then((response) => {
       alert("Recado apagado com sucesso");
       setTimeout(() => {
@@ -136,7 +137,7 @@ function apagar(id){
 }
 
 async function pegarEditar(id){
-    const data = await axios.get(`https://back-recado-combanco.herokuapp.com/recado/${id}`).then((resposta) => {
+    const data = await axios.get(`http://localhost:8080/recado/${id}`).then((resposta) => {
         return resposta.data
     })
 
@@ -168,10 +169,10 @@ async function atualizar() {
       return;
     }
 
-    await axios.put(`https://back-recado-combanco.herokuapp.com/recado/${id}`, {
+    await axios.put(`http://localhost:8080/recado/${id}`, {
       titulo: titulo,
       descricao: detalhes ,
-      id_login: user,
+      loginID: user,
       
   }).then((resposta) => {
           alert("Recado alterado com sucesso");
